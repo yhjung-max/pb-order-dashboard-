@@ -177,9 +177,9 @@ tbody tr:last-child td{ border-bottom:none; }
 .status-cell{ display:flex; align-items:center; flex-wrap:wrap; gap:4px; }
 
 .mj-notice{
-  position:fixed; top:88px; right:20px; width:270px; max-height:70vh; overflow-y:auto;
+  margin:16px 24px 0 auto; width:100%; max-width:340px; max-height:50vh; overflow-y:auto;
   background:var(--panel); border:1px solid var(--warn-fg); border-radius:var(--radius);
-  box-shadow:var(--shadow); z-index:15; padding:14px;
+  box-shadow:var(--shadow); padding:14px;
 }
 .mj-notice.hidden{ display:none; }
 .mj-notice h3{ margin:0 0 8px; font-size:13px; font-weight:800; color:var(--warn-fg); display:flex; align-items:center; gap:6px; }
@@ -188,8 +188,8 @@ tbody tr:last-child td{ border-bottom:none; }
 .mj-notice li a{ display:block; color:inherit; text-decoration:none; }
 .mj-notice li .mn-name{ font-weight:700; color:var(--ink-900); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .mj-notice li .mn-meta{ color:var(--ink-600); margin-top:2px; }
-@media (max-width:1180px){
-  .mj-notice{ position:static; width:auto; max-height:none; margin:16px; }
+@media (max-width:720px){
+  .mj-notice{ max-width:none; margin:16px; }
 }
 .row-link{
   display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px;
@@ -279,13 +279,12 @@ footer{ text-align:center; color:var(--ink-400); font-size:11.5px; padding:20px 
   <div class="search-hint" id="searchHint">&nbsp;</div>
 </div>
 
-<div class="mj-notice hidden" id="mjNotice">
-  <h3>⚠ 주문서 / 입고기안 확인해주세요</h3>
-  <ul id="mjNoticeList"></ul>
-</div>
-
 <main>
   <div class="load-banner loading" id="loadBanner"><span class="spin"></span><span id="loadBannerMsg">최신 데이터를 불러오는 중…</span></div>
+  <div class="mj-notice hidden" id="mjNotice">
+    <h3>⚠ 주문서 / 입고기안 확인해주세요</h3>
+    <ul id="mjNoticeList"></ul>
+  </div>
   <div class="stats" id="stats"></div>
 
   <section class="panel" id="ordersPanel">
