@@ -177,9 +177,9 @@ tbody tr:last-child td{ border-bottom:none; }
 .status-cell{ display:flex; align-items:center; flex-wrap:wrap; gap:4px; }
 
 .mj-notice{
-  margin:16px 24px 0 auto; width:100%; max-width:340px; max-height:50vh; overflow-y:auto;
+  position:sticky; margin:16px 24px 0 auto; width:100%; max-width:340px; max-height:50vh; overflow-y:auto;
   background:var(--panel); border:1px solid var(--warn-fg); border-radius:var(--radius);
-  box-shadow:var(--shadow); padding:14px;
+  box-shadow:var(--shadow); padding:14px; z-index:10;
 }
 .mj-notice.hidden{ display:none; }
 .mj-notice h3{ margin:0 0 8px; font-size:13px; font-weight:800; color:var(--warn-fg); display:flex; align-items:center; gap:6px; }
@@ -618,7 +618,16 @@ function renderAll(){
   renderOrders();
   renderInventory();
   renderMjNotice();
+  positionMjNotice();
 }
+
+function positionMjNotice(){
+  var topbar = document.querySelector('.topbar');
+  var notice = document.getElementById('mjNotice');
+  if(!topbar || !notice) return;
+  notice.style.top = (topbar.offsetHeight + 12) + 'px';
+}
+window.addEventListener('resize', positionMjNotice);
 
 function loadDashboardData(){
   setLoadBanner('loading', '최신 데이터를 불러오는 중…');
