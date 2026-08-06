@@ -337,16 +337,12 @@ function daysFromToday(d){
 }
 function mjAlert(o){
   if(o.kind !== '미진사') return '';
+  if(isDone(o.status)) return '';
   const due = parseDate(o.due_date);
   const diff = daysFromToday(due);
-  if(diff===null || diff < -3 || diff > 1) return '';
-  const mj = o.mj;
-  const missing = [];
-  if(!mj || !mj.quick_done) missing.push('퀵요청');
-  if(!mj || !mj.process) missing.push('처리방식(주문서/입고기안)');
-  if(!mj || !mj.deposit_done) missing.push('선수금 처리');
-  if(!missing.length) return '';
-  return '<span class="mj-alert" title="완성일 임박 · 확인 필요: '+missing.join(', ')+'">!</span>';
+  if(diff===null || diff < 0 || diff > 1) return '';
+  if(o.settled) return '';
+  return '<span class="mj-alert" title="입고예정일 임박 · 주문서/입고기안 확인 필요">!</span>';
 }
 function img(url, size){
   if(url && IMG_MAP[url]) return '<img class="thumb" style="width:'+size+'px;height:'+size+'px" src="'+IMG_MAP[url]+'" alt="" />';
@@ -478,8 +474,9 @@ function renderInventory(){
           '<div class="nm">'+esc(i.name)+'</div>' +
           '<div class="meta">'+esc(i.variant||'')+(i.spec?(' · '+esc(i.spec)):'')+'</div>' +
           '<div class="qtyrow'+(low?' low':'')+'">' +
-            '<span>전체 <b class="qty-total">'+esc(i.qty)+'</b></span>' +
-            (i.remain!==undefined ? '<span>잔여 <b class="qty-remain">'+esc(i.remain)+'</b></span>' : '') +
+            (i.remain!==undefined ?
+              ('<span>잔여 출력 가능 수 <b class="qty-remain">'+esc(i.remain)+'</b></span>') :
+              ('<span>전체 <b class="qty-total">'+esc(i.qty)+'</b></span>')) +
           '</div>' +
         '</div>' +
       '</div>' +
