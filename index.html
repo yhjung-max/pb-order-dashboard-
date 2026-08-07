@@ -189,7 +189,10 @@ tbody tr:last-child td{ border-bottom:none; }
 .mj-notice ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; }
 .mj-notice li{ font-size:11px; padding:6px 8px; background:var(--warn-bg); border-radius:7px; }
 .mj-notice li a{ display:block; color:inherit; text-decoration:none; }
-.mj-notice li .kind-tag{ margin-bottom:3px; }
+.mj-notice li .mn-tag{
+  display:inline-block; margin-bottom:3px; padding:2px 7px; border-radius:5px;
+  font-size:10.5px; font-weight:800; background:var(--warn-fg); color:var(--panel);
+}
 .mj-notice li .mn-name{ font-weight:700; color:var(--ink-900); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .mj-notice li .mn-meta{ color:var(--ink-600); margin-top:2px; }
 @media (max-width:960px){
@@ -384,7 +387,7 @@ function renderMjNotice(){
     const due = parseDate(o.due_date);
     const diff = daysFromToday(due);
     const when = diff===0 ? '오늘' : diff===1 ? '내일' : esc(o.due_date);
-    const body = '<span class="kind-tag kind-'+esc(o.kind)+'">'+esc(o.kind)+'</span>' +
+    const body = '<span class="mn-tag">'+esc(o.kind)+' 확인필요</span>' +
       '<div class="mn-name">'+esc(o.name||o.code)+'</div>' +
       '<div class="mn-meta">'+when+' · '+esc(reason)+'</div>';
     return '<li>' + (o.link ? ('<a href="'+esc(o.link)+'" target="_blank" rel="noopener">'+body+'</a>') : body) + '</li>';
