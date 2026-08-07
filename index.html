@@ -189,6 +189,7 @@ tbody tr:last-child td{ border-bottom:none; }
 .mj-notice ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; }
 .mj-notice li{ font-size:11px; padding:6px 8px; background:var(--warn-bg); border-radius:7px; }
 .mj-notice li a{ display:block; color:inherit; text-decoration:none; }
+.mj-notice li .kind-tag{ margin-bottom:3px; }
 .mj-notice li .mn-name{ font-weight:700; color:var(--ink-900); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .mj-notice li .mn-meta{ color:var(--ink-600); margin-top:2px; }
 @media (max-width:960px){
@@ -363,25 +364,29 @@ function daysFromToday(d){
   if(!d) return null;
   return Math.round((d - TODAY) / 86400000);
 }
-function needsMjCheck(o){
-  if(o.kind !== '미진사') return false;
-  if(o.settled) return false;
+const CHECK_REASON = { '미진사': '주문서/입고기안 확인', '포스터출력': '입고 확인' };
+
+function needsCheckReason(o){
   const due = parseDate(o.due_date);
   const diff = daysFromToday(due);
-  if(diff===null || diff < 0 || diff > 1) return false;
-  return true;
+  if(diff===null || diff < 0 || diff > 1) return null;
+  if(o.kind === '미진사') return o.settled ? null : CHECK_REASON['미진사'];
+  if(o.kind === '포스터출력') return isDone(o.status) ? null : CHECK_REASON['포스터출력'];
+  return null;
 }
 
 function renderMjNotice(){
-  const items = ORDERS.filter(needsMjCheck);
+  const items = ORDERS.map(o => ({ o, reason: needsCheckReason(o) })).filter(x => x.reason);
   const panel = document.getElementById('mjNotice');
   if(!items.length){ panel.classList.add('hidden'); return; }
   panel.classList.remove('hidden');
-  document.getElementById('mjNoticeList').innerHTML = items.map(o => {
+  document.getElementById('mjNoticeList').innerHTML = items.map(({o, reason}) => {
     const due = parseDate(o.due_date);
     const diff = daysFromToday(due);
     const when = diff===0 ? '오늘' : diff===1 ? '내일' : esc(o.due_date);
-    const body = '<div class="mn-name">'+esc(o.name||o.code)+'</div><div class="mn-meta">입고예정일 '+when+' · '+esc(o.code)+'</div>';
+    const body = '<span class="kind-tag kind-'+esc(o.kind)+'">'+esc(o.kind)+'</span>' +
+      '<div class="mn-name">'+esc(o.name||o.code)+'</div>' +
+      '<div class="mn-meta">'+when+' · '+esc(reason)+'</div>';
     return '<li>' + (o.link ? ('<a href="'+esc(o.link)+'" target="_blank" rel="noopener">'+body+'</a>') : body) + '</li>';
   }).join('');
 }
