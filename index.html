@@ -219,7 +219,11 @@ tbody tr:last-child td{ border-bottom:none; }
 .load-banner button{ margin-left:auto; border:1px solid currentColor; background:none; color:inherit; border-radius:6px; padding:4px 10px; cursor:pointer; font-size:12px; }
 @keyframes spin{ to{ transform:rotate(360deg); } }
 
-.inv-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:10px; padding:16px; }
+.inv-section{ padding:16px 16px 0; }
+.inv-section:last-child{ padding-bottom:16px; }
+.inv-section h3{ margin:0 0 10px; font-size:13px; font-weight:800; color:var(--ink-600); }
+.inv-section + .inv-section{ border-top:1px solid var(--line); padding-top:16px; margin-top:4px; }
+.inv-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:10px; }
 .inv-card{
   border:1px solid var(--line); border-radius:9px; padding:10px; display:flex; gap:10px;
   background:var(--panel-2);
@@ -316,7 +320,7 @@ footer{ text-align:center; color:var(--ink-400); font-size:11.5px; padding:20px 
           <h2>재고 현황</h2>
           <span class="sub">재고관리(액자컬러) · 재고관리(예예) · 재고관리(예예-오프라인지점) 스냅샷</span>
         </div>
-        <div class="inv-grid" id="invGrid"></div>
+        <div id="invGrid"></div>
       </section>
 
       <footer>스프레드시트 스냅샷 기준 생성 · 최신 데이터는 각 원본 시트에서 확인하세요</footer>
@@ -500,34 +504,47 @@ function renderOrders(){
   }
 }
 
-function renderInventory(){
-  document.getElementById('invGrid').innerHTML = INVENTORY.map((i, idx) => {
-    const remain = i.remain !== undefined && i.remain !== '' ? i.remain : i.qty;
-    const low = !isNaN(parseFloat(remain)) && parseFloat(remain) <= 20;
-    const canSell = i.kind === SALE_ENABLED_KIND;
-    return '<div class="inv-card" data-idx="'+idx+'">' +
-      '<div class="top">' + img(i.img, 52) +
-        '<div class="body">' +
-          '<div class="nm">'+esc(i.name)+'</div>' +
-          '<div class="meta">'+esc(i.variant||'')+(i.spec?(' · '+esc(i.spec)):'')+'</div>' +
-          '<div class="qtyrow'+(low?' low':'')+'">' +
-            (i.remain!==undefined ?
-              ('<span>잔여 출력 가능 수 <b class="qty-remain">'+esc(i.remain)+'</b></span>') :
-              ('<span>전체 <b class="qty-total">'+esc(i.qty)+'</b></span>')) +
-          '</div>' +
+const INV_SECTION_ORDER = ['액자컬러(윤형택)', '예예'];
+const INV_SECTION_LABEL = { '액자컬러(윤형택)': '윤형택 액자컬러', '예예': '예예' };
+
+function invCardHtml(i, idx){
+  const remain = i.remain !== undefined && i.remain !== '' ? i.remain : i.qty;
+  const low = !isNaN(parseFloat(remain)) && parseFloat(remain) <= 20;
+  const canSell = i.kind === SALE_ENABLED_KIND;
+  return '<div class="inv-card" data-idx="'+idx+'">' +
+    '<div class="top">' + img(i.img, 52) +
+      '<div class="body">' +
+        '<div class="nm">'+esc(i.name)+'</div>' +
+        '<div class="meta">'+esc(i.variant||'')+(i.spec?(' · '+esc(i.spec)):'')+'</div>' +
+        '<div class="qtyrow'+(low?' low':'')+'">' +
+          (i.remain!==undefined ?
+            ('<span>잔여 출력 가능 수 <b class="qty-remain">'+esc(i.remain)+'</b></span>') :
+            ('<span>전체 <b class="qty-total">'+esc(i.qty)+'</b></span>')) +
         '</div>' +
       '</div>' +
-      (canSell ? (
-        '<button class="sale-btn" data-action="toggle" data-idx="'+idx+'">판매</button>' +
-        '<div class="sale-form" id="saleForm'+idx+'">' +
-          '<div class="row">' +
-            '<input type="text" placeholder="주문번호" id="saleOrderNo'+idx+'" />' +
-            '<input type="number" min="1" placeholder="수량" id="saleQty'+idx+'" />' +
-          '</div>' +
-          '<button data-action="submit" data-idx="'+idx+'">기록하기</button>' +
-          '<div class="sale-msg" id="saleMsg'+idx+'"></div>' +
-        '</div>'
-      ) : '') +
+    '</div>' +
+    (canSell ? (
+      '<button class="sale-btn" data-action="toggle" data-idx="'+idx+'">판매</button>' +
+      '<div class="sale-form" id="saleForm'+idx+'">' +
+        '<div class="row">' +
+          '<input type="text" placeholder="주문번호" id="saleOrderNo'+idx+'" />' +
+          '<input type="number" min="1" placeholder="수량" id="saleQty'+idx+'" />' +
+        '</div>' +
+        '<button data-action="submit" data-idx="'+idx+'">기록하기</button>' +
+        '<div class="sale-msg" id="saleMsg'+idx+'"></div>' +
+      '</div>'
+    ) : '') +
+  '</div>';
+}
+
+function renderInventory(){
+  const kinds = INV_SECTION_ORDER.filter(k => INVENTORY.some(i => i.kind === k))
+    .concat([...new Set(INVENTORY.map(i => i.kind))].filter(k => !INV_SECTION_ORDER.includes(k)));
+  document.getElementById('invGrid').innerHTML = kinds.map(kind => {
+    const cards = INVENTORY.map((i, idx) => ({i, idx})).filter(x => x.i.kind === kind);
+    return '<div class="inv-section">' +
+      '<h3>'+esc(INV_SECTION_LABEL[kind] || kind)+' <span class="cnt" style="font-weight:500;color:var(--ink-400);">'+cards.length+'</span></h3>' +
+      '<div class="inv-grid">' + cards.map(x => invCardHtml(x.i, x.idx)).join('') + '</div>' +
     '</div>';
   }).join('');
 
