@@ -163,6 +163,8 @@ tbody tr:last-child td{ border-bottom:none; }
 
 .name-cell{ max-width:230px; }
 .name-cell .nm{ font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.name-cell a.nm{ color:inherit; text-decoration:none; display:block; }
+.name-cell a.nm:hover{ color:var(--accent); text-decoration:underline; }
 .name-cell .code{ font-size:11px; color:var(--ink-400); }
 
 .pill{ display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:999px; font-size:11.5px; font-weight:700; white-space:nowrap; }
@@ -465,7 +467,12 @@ function rowHtml(o){
   return '<tr class="'+(isDone(o.status)?'done-row':'')+'">' +
       '<td>'+img(o.img, 40)+'</td>' +
       '<td><span class="kind-tag kind-'+esc(o.kind)+'">'+esc(o.kind)+'</span></td>' +
-      '<td class="name-cell"><div class="nm">'+hl(o.name||'(품목명 없음)', query)+'</div><div class="code mono">'+esc(o.code)+'</div></td>' +
+      '<td class="name-cell">' +
+        (o.link ?
+          ('<a class="nm" href="'+esc(o.link)+'" target="_blank" rel="noopener" title="원본 시트에서 보기">'+hl(o.name||'(품목명 없음)', query)+'</a>') :
+          ('<div class="nm">'+hl(o.name||'(품목명 없음)', query)+'</div>')) +
+        '<div class="code mono">'+esc(o.code)+'</div>' +
+      '</td>' +
       '<td class="mono">'+esc(o.qty)+'</td>' +
       '<td class="mono">'+esc(o.order_date)+'</td>' +
       '<td class="mono">'+esc(o.due_date)+'</td>' +
