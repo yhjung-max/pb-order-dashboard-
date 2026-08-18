@@ -609,7 +609,10 @@ function submitSale(idx){
       msgEl.classList.add('ok');
       item.remain = data.remain;
       const card = document.querySelector('.inv-card[data-idx="'+idx+'"]');
-      if(card) card.querySelector('.qty-remain').textContent = data.remain;
+      if(card){
+        const remainEl = card.querySelector('.qty-remain') || card.querySelector('.qty-total');
+        if(remainEl) remainEl.textContent = data.remain;
+      }
       orderNoEl.value = '';
       qtyEl.value = '';
     })
