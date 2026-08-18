@@ -545,6 +545,9 @@ function invCardHtml(i, idx){
           '<input type="text" placeholder="주문번호" id="saleOrderNo'+idx+'" />' +
           '<input type="number" min="1" placeholder="수량" id="saleQty'+idx+'" />' +
         '</div>' +
+        '<label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink-600);">' +
+          '<input type="checkbox" id="saleRefund'+idx+'" style="width:auto;" /> 환불 처리 (같은 주문번호로 되돌리기)' +
+        '</label>' +
         '<button data-action="submit" data-idx="'+idx+'">기록하기</button>' +
         '<div class="sale-msg" id="saleMsg'+idx+'"></div>' +
       '</div>'
@@ -577,10 +580,12 @@ function submitSale(idx){
   const item = INVENTORY[idx];
   const orderNoEl = document.getElementById('saleOrderNo'+idx);
   const qtyEl = document.getElementById('saleQty'+idx);
+  const refundEl = document.getElementById('saleRefund'+idx);
   const msgEl = document.getElementById('saleMsg'+idx);
   const btn = document.querySelector('#saleForm'+idx+' [data-action="submit"]');
   const orderNo = orderNoEl.value.trim();
   const qty = parseInt(qtyEl.value, 10);
+  const isRefund = refundEl.checked;
 
   msgEl.className = 'sale-msg';
   if(!orderNo || !qty || qty < 1){
@@ -590,12 +595,12 @@ function submitSale(idx){
   }
 
   btn.disabled = true;
-  msgEl.textContent = '기록 중...';
+  msgEl.textContent = isRefund ? '환불 처리 중...' : '기록 중...';
 
   fetch(SALE_API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify({ code: item.code, color: item.variant, orderNo: orderNo, qty: qty }),
+    body: JSON.stringify({ code: item.code, color: item.variant, orderNo: orderNo, qty: qty, refund: isRefund }),
   })
     .then(r => r.json())
     .then(data => {
@@ -605,8 +610,9 @@ function submitSale(idx){
         msgEl.classList.add('err');
         return;
       }
-      msgEl.textContent = '기록 완료! 잔여 ' + data.remain;
+      msgEl.textContent = (isRefund ? '환불 완료! 잔여 ' : '기록 완료! 잔여 ') + data.remain;
       msgEl.classList.add('ok');
+      refundEl.checked = false;
       item.remain = data.remain;
       const card = document.querySelector('.inv-card[data-idx="'+idx+'"]');
       if(card){
