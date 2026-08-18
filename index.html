@@ -521,11 +521,13 @@ function renderOrders(){
 
 const INV_SECTION_ORDER = ['액자컬러(윤형택)', '예예'];
 const INV_SECTION_LABEL = { '액자컬러(윤형택)': '윤형택 액자컬러', '예예': '예예' };
+const INV_QTY_LABEL = { '액자컬러(윤형택)': '제작 액자 수', '예예': '잔여 출력 가능 수' };
 
 function invCardHtml(i, idx){
   const remain = i.remain !== undefined && i.remain !== '' ? i.remain : i.qty;
   const low = !isNaN(parseFloat(remain)) && parseFloat(remain) <= 20;
   const canSell = i.kind === SALE_ENABLED_KIND;
+  const qtyLabel = INV_QTY_LABEL[i.kind] || '전체';
   return '<div class="inv-card" data-idx="'+idx+'">' +
     '<div class="top">' + img(i.img, 52) +
       '<div class="body">' +
@@ -533,8 +535,8 @@ function invCardHtml(i, idx){
         '<div class="meta">'+esc(i.variant||'')+(i.spec?(' · '+esc(i.spec)):'')+'</div>' +
         '<div class="qtyrow'+(low?' low':'')+'">' +
           (i.remain!==undefined ?
-            ('<span>잔여 출력 가능 수 <b class="qty-remain">'+esc(i.remain)+'</b></span>') :
-            ('<span>전체 <b class="qty-total">'+esc(i.qty)+'</b></span>')) +
+            ('<span>'+esc(qtyLabel)+' <b class="qty-remain">'+esc(i.remain)+'</b></span>') :
+            ('<span>'+esc(qtyLabel)+' <b class="qty-total">'+esc(i.qty)+'</b></span>')) +
         '</div>' +
       '</div>' +
     '</div>' +
